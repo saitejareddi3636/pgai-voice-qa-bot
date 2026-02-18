@@ -1,33 +1,9 @@
 # Architecture
 
-## Overview
+This project is designed as an automated voice QA harness for testing a production healthcare phone agent. Instead of trying to build another assistant, the system focuses on reliably exercising the target agent through realistic patient conversations and collecting structured evidence about how it behaves. Each outbound call is treated as an isolated "run" so that recordings, transcripts, scenario inputs, and QA findings remain grouped together and reproducible.
 
-This is a phone-based QA system that calls healthcare agents and tests their responses. It places real phone calls, records conversations, and generates bug reports.
+The call flow is controlled by a FastAPI TwiML server that runs a deterministic multi turn loop. For each turn, the system plays a patient prompt, records the agent response, and stores the audio locally. When the conversation ends, a finalize step transcribes all recordings using FasterWhisper and generates a structured transcript. A QA stage then scans the transcript for common real world failure patterns such as contradictory scheduling, looping responses, incorrect workflow instructions, or incoherent phrasing. This QA runs in a dual mode design so the system always works even without external API quota, ensuring reviewers can reproduce results without configuration issues.
 
-## How it works
+To improve coverage, the system uses predefined scenario packs representing different patient intents such as scheduling, rescheduling, medication refill requests, insurance questions, and edge cases designed to stress conversation stability. A run manager automatically creates timestamped run folders and maintains a latest pointer for convenience. A batch runner can place multiple calls in sequence and produces a ranked summary report that aggregates severity scores across scenarios, allowing quick identification of the highest risk conversation paths.
 
-1. **TwiML Server**: FastAPI server that handles Twilio webhooks and controls call flow
-2. **Scenarios**: Predefined patient scripts for different test cases
-3. **Run Management**: Each call creates a timestamped folder with all artifacts  
-4. **Transcription**: Uses FasterWhisper locally (no external API needed)
-5. **QA Analysis**: Dual system - OpenAI API with heuristic fallback
-
-## Call Flow
-
-Each call follows this pattern:
-- Pick a scenario (rotates through 5 different patient types)
-- Play patient line, record agent response  
-- Repeat for multiple turns
-- Transcribe all recordings
-- Generate bug report
-- Update batch summary
-
-## Key Design Decisions
-
-**Local transcription**: Uses FasterWhisper so the system works without external API quota limits.
-
-**Deterministic scenarios**: Each run folder contains the exact patient script used, making results reproducible.
-
-**Dual QA mode**: Falls back to heuristic analysis if OpenAI API is unavailable.
-
-**Run isolation**: Each test creates a separate timestamped folder. No overwriting of previous results.
+The main design priority throughout the project was reliability and reviewer clarity rather than experimental features. Every call produces deterministic artifacts, requires minimal setup, and can be rerun end to end with a single command. This keeps the system close to how a real QA engineer would validate a voice agent in production, where repeatability, logging, and structured evidence matter more than model experimentation.
