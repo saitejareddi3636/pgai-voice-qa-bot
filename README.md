@@ -70,7 +70,3 @@ Each call creates a folder under `runs/run_YYYYMMDD_HHMMSS/`:
 - `patient/`
 
 Latest run is also accessible via `runs/latest`
-
-## Notes on cost
-
-Twilio usage costs apply. The challenge mentions reimbursement up to $25 with screenshots of usage.
