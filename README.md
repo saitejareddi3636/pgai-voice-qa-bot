@@ -1,6 +1,6 @@
 # Pretty Good AI Engineering Challenge Voice QA Bot
 
-This project places automated patient phone calls, records the agent responses, transcribes them, and generates QA bug reports and a ranked batch summary.
+Automated voice QA system that places real patient calls, records responses, generates transcripts, and produces structured bug reports and ranked scenario summaries.
 
 ## What it does
 1. Calls a target phone number using Twilio
